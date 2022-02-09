@@ -1,8 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlinVersion = '1.3.72'
-    ext.navigationVersion = "2.2.0"
+    ext.kotlinVersion = '1.6.10'
+    ext.navigationVersion = "2.4.0"
 
     repositories {
         google()
@@ -10,10 +10,10 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath 'com.android.tools.build:gradle:7.0.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
-        classpath 'com.google.gms:google-services:4.3.3'
+        classpath 'com.google.gms:google-services:4.3.10'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -33,9 +33,9 @@ task clean(type: Delete) {
 ext {
     // Sdk and tools
     // Support library and architecture components support minSdk 14 and above.
-    minSdkVersion = 16
-    targetSdkVersion = 30
-    compileSdkVersion = 30
+    minSdkVersion = 19
+    targetSdkVersion = 32
+    compileSdkVersion = 32
 
     // App dependencies
     androidXVersion = '1.0.0'
@@ -46,22 +46,22 @@ ext {
     cardVersion = '1.0.0'
     materialVersion = '1.1.0'
     fragmentVersion = '1.1.0-alpha07'
-    recyclerViewVersion = '1.1.0'
-    mockitoVersion = '2.8.9'
+    recyclerViewVersion = '1.2.1'
+    mockitoVersion = '3.9.0'
     constraintVersion = '2.0.0-rc1'
     dexMakerVersion = '2.12.1'
-    coroutinesVersion = '1.2.1'
-    roomVersion = '2.2.5'
+    coroutinesVersion = '1.5.0'
+    roomVersion = '2.4.1'
     koinVersion = '2.0.1'
     truthVersion = '0.44'
-    junitVersion = '4.12'
-    androidXTestCoreVersion = '1.2.0-beta01'
-    robolectricVersion = '4.3-beta-1'
+    junitVersion = '4.13.2'
+    androidXTestCoreVersion = '1.4.0'
+    robolectricVersion = '4.7.3'
     androidXTestExtKotlinRunnerVersion = '1.1.1'
     archTestingVersion = '2.0.0'
     playServicesVersion = '17.0.0'
     hamcrestVersion = '1.3'
     androidXTestRulesVersion = '1.2.0-beta01'
-    espressoVersion = '3.2.0'
+    espressoVersion = '3.4.0'
 
 }

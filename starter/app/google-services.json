@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "174765468922",
+    "project_id": "cool-todo-app-afc47",
+    "storage_bucket": "cool-todo-app-afc47.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:174765468922:android:a1df93c8deb7e7ed94ed43",
+        "android_client_info": {
+          "package_name": "com.udacity.project4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "174765468922-8m7da1ioltemniqgj49gun7qki7eq0i3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.udacity.project4",
+            "certificate_hash": "eef0c46a4abc89861231a4ac32e47745eae1f7de"
+          }
+        },
+        {
+          "client_id": "174765468922-ln8s8m6cd18iuraoeqslcsctqsg8kdok.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvBBGTLp7Y0zDam6Q42HLM7I3Hzq9pnLs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "174765468922-ln8s8m6cd18iuraoeqslcsctqsg8kdok.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
