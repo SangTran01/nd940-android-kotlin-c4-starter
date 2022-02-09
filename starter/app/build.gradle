@@ -128,8 +128,8 @@ dependencies {
 
 
     //Maps & Geofencing
-    implementation "com.google.android.gms:play-services-location:$playServicesVersion"
-    implementation "com.google.android.gms:play-services-maps:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-location:19.0.1"
+    implementation "com.google.android.gms:play-services-maps:18.0.2"
 
     //Firebase
     implementation 'com.firebaseui:firebase-ui-auth:5.0.0'
