@@ -33,13 +33,6 @@ class AuthenticationActivity : AppCompatActivity() {
         signInBtn.setOnClickListener {
             launchSignInFlow()
         }
-//         TODO: Implement the create account and sign in using FirebaseUI, use sign in using email and sign in using Google
-
-//          TODO: If the user was authenticated, send him to RemindersActivity
-
-//          TODO: a bonus is to customize the sign in flow to look nice using :
-        //https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#custom-layout
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -48,11 +41,6 @@ class AuthenticationActivity : AppCompatActivity() {
             val response = IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK) {
                 // Successfully signed in user.
-//                Log.i(
-//                    TAG,
-//                    "Successfully signed in user " +
-//                            "${FirebaseAuth.getInstance().currentUser?.displayName}!"
-//                )
                 val intent = Intent(this, RemindersActivity::class.java)
                 startActivity(intent)
             } else {
