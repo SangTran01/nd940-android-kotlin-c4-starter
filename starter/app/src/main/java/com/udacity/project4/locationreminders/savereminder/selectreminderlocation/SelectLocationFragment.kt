@@ -4,6 +4,7 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -26,6 +27,7 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.*
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.udacity.project4.base.NavigationCommand
 
 
@@ -41,7 +43,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private lateinit var poiList: MutableList<PointOfInterest>
 
-    private val fusedLocationClient: FusedLocationProviderClient? = null
+    private var fusedLocationClient: FusedLocationProviderClient? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -56,6 +58,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setDisplayHomeAsUpEnabled(true)
 
         _viewModel.onClear()
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         poiList = mutableListOf<PointOfInterest>()
 
@@ -128,19 +132,62 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         else -> super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         enableMyLocation()
 
-        // Add a marker in Sydney and move the camera
-//        val home = LatLng(map.myLocation -79.77435277568486)
-        val zoom = 15f
-
 //        map.addMarker(MarkerOptions().position(home).title("My Home"))
-//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(home, zoom))
+        if (isPermissionGranted()) {
+            // Shows my location only if the permission is granted
+            map.isMyLocationEnabled = true
 
+            // zoom to the user location after taking his permission
+            fusedLocationClient!!.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    map.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(
+                                location!!.latitude,
+                                location.longitude
+                            ), 14F
+                        )
+                    )
+                }
+        }
+        setMapGeneralClick(map)
         setMapPoiClick(map)
         setMapStyle(map)
+    }
+
+    private fun setMapGeneralClick(map: GoogleMap)  {
+        map.setOnMapClickListener { pos ->
+
+            map.clear() //clear all beforehand...
+            _viewModel.onClear()
+
+            // Move camera to the selected location
+            map.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    pos, 14F
+                )
+            )
+
+            val latLng = LatLng(pos.latitude, pos.longitude)
+            val title = "spot at ${latLng}"
+            val marker = map.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .title(title)
+            )
+            marker?.let {
+                it.showInfoWindow()
+            }
+
+            val poi = PointOfInterest(latLng, UUID.randomUUID().toString(), title)
+
+            poiList.add(poi)
+        }
     }
 
     private fun setMapPoiClick(map: GoogleMap) {

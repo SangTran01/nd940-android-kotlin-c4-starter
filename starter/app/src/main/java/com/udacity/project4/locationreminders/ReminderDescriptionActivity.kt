@@ -14,6 +14,8 @@ import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
  */
 class ReminderDescriptionActivity : AppCompatActivity() {
 
+    private lateinit var reminderData: ReminderDataItem
+
     companion object {
         private const val EXTRA_ReminderDataItem = "EXTRA_ReminderDataItem"
 
@@ -32,6 +34,9 @@ class ReminderDescriptionActivity : AppCompatActivity() {
             this,
             R.layout.activity_reminder_description
         )
-//        TODO: Add the implementation of the reminder details
+
+        reminderData = intent.extras?.getSerializable(EXTRA_ReminderDataItem) as ReminderDataItem
+        reminderData.description = reminderData.description ?: "empty description"
+        binding.reminderDataItem = reminderData
     }
 }

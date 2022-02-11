@@ -34,8 +34,8 @@ ext {
     // Sdk and tools
     // Support library and architecture components support minSdk 14 and above.
     minSdkVersion = 19
-    targetSdkVersion = 32
-    compileSdkVersion = 32
+    targetSdkVersion = 31
+    compileSdkVersion = 31
 
     // App dependencies
     androidXVersion = '1.0.0'
@@ -47,7 +47,7 @@ ext {
     materialVersion = '1.1.0'
     fragmentVersion = '1.1.0-alpha07'
     recyclerViewVersion = '1.2.1'
-    mockitoVersion = '3.9.0'
+    mockitoVersion = '2.8.9'
     constraintVersion = '2.0.0-rc1'
     dexMakerVersion = '2.12.1'
     coroutinesVersion = '1.5.0'

@@ -37,9 +37,6 @@ class ReminderListFragment : BaseFragment() {
     private lateinit var binding: FragmentRemindersBinding
 
     private val REQUEST_LOCATION_PERMISSION = 1
-    private lateinit var map: GoogleMap
-
-    private lateinit var navController: NavController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,8 +60,6 @@ class ReminderListFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        navController = findNavController()
 
         binding.lifecycleOwner = this
         setupRecyclerView()
@@ -122,10 +117,7 @@ class ReminderListFragment : BaseFragment() {
     }
 
     private fun requestLocationPermission() {
-        if (isPermissionGranted()) {
-            Toast.makeText(requireActivity(), "Permission Granted", Toast.LENGTH_SHORT).show();
-        }
-        else {
+        if (!isPermissionGranted()) {
             ActivityCompat.requestPermissions(
                 requireActivity(),
                 arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),

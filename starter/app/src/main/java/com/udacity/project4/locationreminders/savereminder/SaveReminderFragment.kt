@@ -32,7 +32,7 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var binding: FragmentSaveReminderBinding
     private lateinit var geofencingClient: GeofencingClient
 
-    val runningQorLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    private val runningQorLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
     companion object {
         private val TAG = this::class.java.simpleName
@@ -80,7 +80,6 @@ class SaveReminderFragment : BaseFragment() {
         }
 
         checkPermissionsAndStartGeofencing()
-//        removeGeofences() //for testing
 
         binding.saveReminder.setOnClickListener {
             val title = _viewModel.reminderTitle.value
@@ -90,8 +89,11 @@ class SaveReminderFragment : BaseFragment() {
             val longitude = _viewModel.longitude.value
 
             val reminder = ReminderDataItem(title, description, location, latitude, longitude)
-
-            addGeofence(reminder)
+            if (title.isNullOrEmpty() || location.isNullOrEmpty()) {
+                _viewModel.validateEnteredData(reminder)
+            } else {
+                addGeofence(reminder)
+            }
         }
     }
 
@@ -158,27 +160,6 @@ class SaveReminderFragment : BaseFragment() {
         )
     }
 
-    /**
-     * Removes geofences. This method should be called after the user has granted the location
-     * permission.
-     */
-    private fun removeGeofences() {
-        if (!foregroundAndBackgroundLocationPermissionApproved()) {
-            return
-        }
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-            addOnSuccessListener {
-                Log.d(TAG, "geofence removed")
-                Toast.makeText(requireActivity(), "geofence removed", Toast.LENGTH_SHORT)
-                    .show()
-            }
-            addOnFailureListener {
-                Toast.makeText(requireActivity(), "geofence not removed", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-    }
-
     fun addGeofence(reminder: ReminderDataItem) {
         val context = requireActivity()
         // 1
@@ -194,10 +175,6 @@ class SaveReminderFragment : BaseFragment() {
 
             geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                 addOnSuccessListener {
-                    Toast.makeText(requireActivity(), R.string.geofence_entered,
-                        Toast.LENGTH_SHORT)
-                        .show()
-                    Log.e("Add Geofence", geofence.requestId)
                     _viewModel.validateAndSaveReminder(reminder)
                 }
                 addOnFailureListener {
