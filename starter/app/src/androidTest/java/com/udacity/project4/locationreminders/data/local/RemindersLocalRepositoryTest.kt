@@ -54,10 +54,7 @@ class RemindersLocalRepositoryTest {
         )
             .allowMainThreadQueries()
             .build()
-        repository = RemindersLocalRepository(
-            database.reminderDao(),
-            Dispatchers.Main
-        )
+        repository = RemindersLocalRepository(database.reminderDao(),Dispatchers.Main)
     }
 
     @After
@@ -71,7 +68,7 @@ class RemindersLocalRepositoryTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     @Test
-    fun saveReminder_test() = runBlocking {
+    fun saveReminder_test() = mainCoroutineRule.runBlockingTest {
         repository.saveReminder(rem1)
 
         val remindersList = repository.getReminders()
@@ -86,7 +83,7 @@ class RemindersLocalRepositoryTest {
     }
 
     @Test
-    fun saveReminder_returnEmpty() = runBlocking {
+    fun saveReminder_returnEmpty() = mainCoroutineRule.runBlockingTest {
         repository.saveReminder(rem1)
         val reminderListWithData = repository.getReminders() as Result.Success
         repository.deleteAllReminders()
@@ -97,10 +94,13 @@ class RemindersLocalRepositoryTest {
     }
 
     @Test
-    fun getReminder_returnsError() = runBlocking {
-        val gotData = repository.getReminder("1")
+    fun deleteAllReminders_andCheckEmptyValue() = mainCoroutineRule.runBlockingTest {
+        // When the reminders are deleted
+        repository.deleteAllReminders()
 
-        assertThat(gotData, `is`(not(Result.Success(gotData))))
-        assertThat(gotData, `is`(Result.Error("Reminder not found!")))
+        val remindersList = repository.getReminders() as Result.Success
+
+        // Then The loaded data contains the expected values.
+        assertThat(remindersList, `is`(Result.Success(emptyList())))
     }
 }

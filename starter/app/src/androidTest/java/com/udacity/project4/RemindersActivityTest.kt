@@ -1,5 +1,6 @@
 package com.udacity.project4
 
+import android.app.Activity
 import android.app.Application
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -50,7 +51,6 @@ class RemindersActivityTest :
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
-    private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
@@ -96,6 +96,9 @@ class RemindersActivityTest :
         }
     }
 
+
+    private val dataBindingIdlingResource = DataBindingIdlingResource()
+
     @Before
     fun registerIdlingResource() {
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
@@ -120,6 +123,7 @@ class RemindersActivityTest :
         }
 
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
+
         dataBindingIdlingResource.monitorActivity(scenario)
 
         onView(withText(reminder.title))
@@ -181,14 +185,25 @@ class RemindersActivityTest :
         // Save the reminder finally
         Thread.sleep(2000)
         onView(withId(R.id.saveReminder)).perform(click())
-        // If no reminders Check on Reminder List  whether no Data is gone and new Reminder is shown
-        //Fail if had some before..
-        Thread.sleep(5000)
+
+        //Testing 'reminder saved' toast message
+        val activity = getActivityFromScenario(scenario)
+        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not(`is`(activity!!.window.decorView)))).check(matches(isDisplayed()))
+
+        Thread.sleep(2000)
         onView(withId(R.id.noDataTextView)).check(matches(withEffectiveVisibility(Visibility.GONE)))
         onView(withText(reminder.title))
             .check(matches(isDisplayed()))
         onView(withText(reminder.description))
             .check(matches(isDisplayed()))
+    }
+
+    private fun getActivityFromScenario(activityScenario: ActivityScenario<RemindersActivity>): Activity? {
+        var activity: Activity? = null
+        activityScenario.onActivity {
+            activity = it
+        }
+        return activity
     }
 
 }

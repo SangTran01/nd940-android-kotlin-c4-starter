@@ -15,11 +15,13 @@ class FakeAndroidTestRepository(
 
     private var shouldReturnError = false
 
-    fun setReturnError(value: Boolean) = { shouldReturnError = value }
+    fun setReturnError(value: Boolean) {
+        shouldReturnError = value
+    }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
         if (shouldReturnError) {
-            return Result.Error("Test error")
+            return Result.Error("Test exception")
         }
 
         return Result.Success(remindersServiceData.values.toList())
@@ -31,7 +33,7 @@ class FakeAndroidTestRepository(
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         if (shouldReturnError) {
-            return Result.Error("Test error")
+            return Result.Error("Test exception")
         }
         remindersServiceData[id]?.let {
             return Result.Success(it)

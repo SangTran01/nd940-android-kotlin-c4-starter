@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
@@ -27,8 +26,7 @@ import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.*
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.udacity.project4.base.NavigationCommand
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
@@ -41,9 +39,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private val REQUEST_LOCATION_PERMISSION: Int = 1
     private val TAG = this::class.java.simpleName
     private lateinit var map: GoogleMap
-    private lateinit var poiList: MutableList<PointOfInterest>
+    private lateinit var selectedPOI: PointOfInterest
 
-    private var fusedLocationClient: FusedLocationProviderClient? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -60,9 +58,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         _viewModel.onClear()
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-
-        poiList = mutableListOf<PointOfInterest>()
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
@@ -74,15 +69,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun onLocationSelected() {
-        if (poiList.isEmpty()) {
+        if (selectedPOI == null) {
             Toast.makeText(
                 requireActivity(),
                 "Please select a point of interest",
                 Toast.LENGTH_SHORT
             ).show();
         } else {
-            val poi = poiList.first()
-            _viewModel.setPOIMarker(poi)
+            _viewModel.setPOIMarker(selectedPOI)
             findNavController().popBackStack()
         }
     }
@@ -97,13 +91,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
-            map.setMyLocationEnabled(true)
+            map.isMyLocationEnabled = true
         } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 
@@ -135,32 +125,44 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        enableMyLocation()
-
-//        map.addMarker(MarkerOptions().position(home).title("My Home"))
-        if (isPermissionGranted()) {
-            // Shows my location only if the permission is granted
-            map.isMyLocationEnabled = true
-
-            // zoom to the user location after taking his permission
-            fusedLocationClient!!.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    map.moveCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                            LatLng(
-                                location!!.latitude,
-                                location.longitude
-                            ), 14F
-                        )
-                    )
-                }
-        }
         setMapGeneralClick(map)
         setMapPoiClick(map)
         setMapStyle(map)
+
+        enableMyLocation()
+
+        if (isPermissionGranted()) {
+            // zoom to the user location after taking his permission
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    location?.let {
+                        map.moveCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                LatLng(
+                                    location.latitude,
+                                    location.longitude
+                                ), 14F
+                            )
+                        )
+                    }
+                }
+        }
     }
 
-    private fun setMapGeneralClick(map: GoogleMap)  {
+    // Register the permissions callback, which handles the user's response to the
+    // system permissions dialog. Save the return value, an instance of
+    // ActivityResultLauncher, as an instance variable.
+    private val requestPermissionLauncher = registerForActivityResult(
+        RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            enableMyLocation()
+        } else {
+            _viewModel.showSnackBar.value = getString(R.string.permission_denied_explanation)
+        }
+    }
+
+    private fun setMapGeneralClick(map: GoogleMap) {
         map.setOnMapClickListener { pos ->
 
             map.clear() //clear all beforehand...
@@ -174,7 +176,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             )
 
             val latLng = LatLng(pos.latitude, pos.longitude)
-            val title = "spot at ${latLng}"
+            val title = "Meeting spot"
             val marker = map.addMarker(
                 MarkerOptions()
                     .position(latLng)
@@ -186,7 +188,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
             val poi = PointOfInterest(latLng, UUID.randomUUID().toString(), title)
 
-            poiList.add(poi)
+            selectedPOI = poi
         }
     }
 
@@ -205,7 +207,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 it.showInfoWindow()
             }
 
-            poiList.add(poi)
+            selectedPOI = poi
         }
     }
 
