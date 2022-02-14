@@ -116,16 +116,6 @@ class SaveReminderFragment : BaseFragment() {
      * Starts the permission check and Geofence process only if the Geofence associated with the
      * current hint isn't yet active.
      */
-//    @TargetApi(29)
-//    private fun checkPermissionsAndStartGeofencing(reminder: ReminderDataItem) {
-//        if (foregroundAndBackgroundLocationPermissionApproved()) {
-//            checkDeviceLocationSettingsAndStartGeofence(reminder)
-//        } else {
-//            var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-//            if (runningQorLater) permissions += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-//            requestMultiplePermissionLauncher.launch(permissions)
-//        }
-//    }
     @TargetApi(29)
     private fun checkPermissionsAndStartGeofencing(reminder: ReminderDataItem) {
         if (foregroundAndBackgroundLocationPermissionApproved()) {
@@ -169,20 +159,6 @@ class SaveReminderFragment : BaseFragment() {
                 Log.d(TAG, "Device location enabled")
                 addGeofence(reminder)
             }
-        }
-    }
-
-    // Register the permissions callback, which handles the user's response to the
-    // system permissions dialog. Save the return value, an instance of
-    // ActivityResultLauncher. You can use either a val, as shown in this snippet,
-    // or a lateinit var in your onAttach() or onCreate() method.
-    private val requestMultiplePermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        if (permissions.containsValue(false)) {
-            _viewModel.showSnackBar.value = getString(R.string.permission_denied_explanation)
-        } else {
-            checkDeviceLocationSettingsAndStartGeofence(reminder)
         }
     }
 
