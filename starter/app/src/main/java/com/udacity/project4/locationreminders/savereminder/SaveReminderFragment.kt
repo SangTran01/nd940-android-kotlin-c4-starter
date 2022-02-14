@@ -116,14 +116,22 @@ class SaveReminderFragment : BaseFragment() {
      * Starts the permission check and Geofence process only if the Geofence associated with the
      * current hint isn't yet active.
      */
+//    @TargetApi(29)
+//    private fun checkPermissionsAndStartGeofencing(reminder: ReminderDataItem) {
+//        if (foregroundAndBackgroundLocationPermissionApproved()) {
+//            checkDeviceLocationSettingsAndStartGeofence(reminder)
+//        } else {
+//            var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+//            if (runningQorLater) permissions += Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//            requestMultiplePermissionLauncher.launch(permissions)
+//        }
+//    }
     @TargetApi(29)
     private fun checkPermissionsAndStartGeofencing(reminder: ReminderDataItem) {
         if (foregroundAndBackgroundLocationPermissionApproved()) {
             checkDeviceLocationSettingsAndStartGeofence(reminder)
         } else {
-            var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-            if (runningQorLater) permissions += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            requestMultiplePermissionLauncher.launch(permissions)
+            requestForegroundAndBackgroundLocationPermissions()
         }
     }
 
@@ -168,16 +176,15 @@ class SaveReminderFragment : BaseFragment() {
     // system permissions dialog. Save the return value, an instance of
     // ActivityResultLauncher. You can use either a val, as shown in this snippet,
     // or a lateinit var in your onAttach() or onCreate() method.
-    private val requestMultiplePermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions(),
-        ) { permissions ->
-            if (permissions.containsValue(false)) {
-                _viewModel.showSnackBar.value = getString(R.string.permission_denied_explanation)
-            } else {
-                checkDeviceLocationSettingsAndStartGeofence(reminder)
-            }
+    private val requestMultiplePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions.containsValue(false)) {
+            _viewModel.showSnackBar.value = getString(R.string.permission_denied_explanation)
+        } else {
+            checkDeviceLocationSettingsAndStartGeofence(reminder)
         }
+    }
 
 
     private val requestLocationLauncher = registerForActivityResult(
@@ -186,7 +193,18 @@ class SaveReminderFragment : BaseFragment() {
         if (result.resultCode == RESULT_OK) {
             checkDeviceLocationSettingsAndStartGeofence(reminder)
         } else {
-            _viewModel.showSnackBar.value = getString(R.string.permission_denied_explanation)
+            Snackbar.make(
+                this.requireView(),
+                R.string.permission_denied_explanation,
+                Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction(R.string.settings) {
+                    startActivity(Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    })
+                }.show()
         }
     }
 
